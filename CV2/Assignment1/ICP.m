@@ -23,7 +23,7 @@ function [rotation, translation] = ICP(base_point_set, target_point_set, iterati
         % target set point
         distances = pdist2( base_point_set', target_point_set');
         [min_dist, target_set_matched_indices] = min(distances, [], 2);
-        target_point_set = target_point_set(:, target_set_matched_indices);
+        target_point_set1 = target_point_set(:, target_set_matched_indices);
         rms = mean(min_dist);
         %fprintf('rms: %5f\n', rms); 
         
@@ -31,8 +31,8 @@ function [rotation, translation] = ICP(base_point_set, target_point_set, iterati
         % calcualte svd
         W = eye(num_points);
         p = mean(base_point_set');
-        q = mean(target_point_set');
-        S = (base_point_set * W)*target_point_set'; %(3xn)x(nxn)x(nx3)
+        q = mean(target_point_set1');
+        S = ((base_point_set - p') * W)*(target_point_set1-q')'; %(3xn)x(nxn)x(nx3)
         [U, ~, V] = svd(S);
 
         % calculate R and t
@@ -42,6 +42,7 @@ function [rotation, translation] = ICP(base_point_set, target_point_set, iterati
         t = q' - (R*p');
 
         orig_base_point_set = (R* orig_base_point_set)+t;
+        base_point_set = (R* base_point_set)+t;
         
         % update rotation nad translation
         rotation = R * rotation;
