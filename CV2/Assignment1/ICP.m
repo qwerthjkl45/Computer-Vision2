@@ -1,4 +1,4 @@
-function [rotation, translation] = ICP(base_point_set, target_point_set, iteration, sampling, visualize)
+function [rotation, translation, average_rms, rms] = ICP(base_point_set, target_point_set, iteration, sampling, visualize)
 
     % for visualize
     orig_base_point_set = base_point_set;
@@ -7,15 +7,29 @@ function [rotation, translation] = ICP(base_point_set, target_point_set, iterati
     % initlize R and t
     rotation = eye(3);
     translation = zeros(3, 1);
+    
+    % record mse in each iterations
+    rms = ones(iteration, 1);
         
     for iter = 1:iteration       
+        
         if nargin >= 4
             sampling_way = sampling{1};
             sampling_num = sampling{2};
-            % to do : sampling: define the way of sampling   
             
-            base_point_set = (datasample(orig_base_point_set', sampling_num))';   
-            target_point_set = (datasample(orig_target_point_set', sampling_num))'; 
+           if sampling_way == "random"
+               base_point_set = (datasample(orig_base_point_set', sampling_num))';   
+               target_point_set = (datasample(orig_target_point_set', sampling_num))'; 
+           elseif sampling_way == "uniform"
+               random_indices = randperm(size(orig_base_point_set, 2), sampling_num);
+               base_point_set = orig_base_point_set(:, random_indices);
+               target_point_set = orig_target_point_set(:, random_indices);
+           elseif sampling_way == "informative" 
+               base_point_set = informative_region(orig_base_point_set);
+               target_point_set = informative_region(orig_target_point_set);
+               base_point_set = (datasample(base_point_set', sampling_num))';   
+               target_point_set = (datasample(target_point_set', sampling_num))'; 
+           end
         end
         num_points = size(base_point_set, 2);
         
@@ -24,7 +38,8 @@ function [rotation, translation] = ICP(base_point_set, target_point_set, iterati
         distances = pdist2( base_point_set', target_point_set');
         [min_dist, target_set_matched_indices] = min(distances, [], 2);
         target_point_set1 = target_point_set(:, target_set_matched_indices);
-        rms = mean(min_dist);
+        average_rms = mean(min_dist);
+        rms(iter, 1) = average_rms;
         %fprintf('rms: %5f\n', rms); 
         
 
@@ -34,6 +49,7 @@ function [rotation, translation] = ICP(base_point_set, target_point_set, iterati
         q = mean(target_point_set1');
         S = ((base_point_set - p') * W)*(target_point_set1-q')'; %(3xn)x(nxn)x(nx3)
         [U, ~, V] = svd(S);
+        
 
         % calculate R and t
         W = eye(3);
