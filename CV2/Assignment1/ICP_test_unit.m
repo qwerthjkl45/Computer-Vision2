@@ -11,7 +11,7 @@ visualize = 1;
 
 %% generate graph for accuracy and speed of convergence
 x = 1:1:20;
-figure(1);
+figure(2);
 xlabel('iteration');
 ylabel('MSE');
 title('MSE and speed of convergence for 1000 points from different point selection technique in each iterations');
@@ -37,7 +37,7 @@ for idx = x
     [~, ~, avg_rms_all(idx), ~] =  ICP(data_source.source, data_target.target, 20);
 end
 
-figure(2);
+figure(3);
 xlabel('number of times');
 ylabel('MSE');
 title('Stability for 1000 points from different point selection technique');
@@ -68,7 +68,7 @@ end
 
 
 x = 1./x;
-figure(3);
+figure(4);
 xlabel('noise variance');
 ylabel('MSE');
 title('MSE for 1000 points from different point selection technique in difference noise variance');
