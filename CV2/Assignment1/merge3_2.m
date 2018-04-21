@@ -24,7 +24,7 @@ function merge3_2()
         camera_points_target_sample = datasample(camera_points_target, sample_size, 1); % n*3
       
     
-        [rotation, translation, rms, ~] = ICP(camera_points_source_sample', camera_points_target_sample', 20);
+        [rotation, translation, rms, ~] = ICP(camera_points_source_sample', camera_points_target_sample', 50);
         fprintf('=== frame: %d, rms: %f ===\n', idx, rms);
         camera_points_target = ((inv(rotation))*(camera_points_target' - translation))';
         

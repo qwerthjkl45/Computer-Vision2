@@ -4,17 +4,17 @@ data_target = load('./Data/target.mat');
 
 visualize = 1;
 [~, ~, ~, rms_all] =  ICP(data_source.source, data_target.target, 20);
-[~, ~, ~, rms_informative] =  ICP(data_source.source, data_target.target, 20, {'informative', 1000}, visualize );
+[~, ~, ~, rms_informative] =  ICP(data_source.source, data_target.target, 20, {'informative', 1000} );
 [~, ~, ~, rms_uniforms] =  ICP(data_source.source, data_target.target, 20, {'uniform', 1000} );
 [~, ~, ~, rms_random] =  ICP(data_source.source, data_target.target, 20, {'random', 1000} );
 
 
 %% generate graph for accuracy and speed of convergence
 x = 1:1:20;
-figure(2);
+figure(1);
 xlabel('iteration');
 ylabel('MSE');
-title('MSE and speed of convergence for 1000 points from different point selection technique in each iterations');
+title('MSE and convergence rate for 1000 points from different point selection technique in each iterations');
 drawnow;
 hold on;
 plot(x, rms_uniforms, x, rms_random, x, rms_informative, x, rms_all, 'LineWidth', 2);
@@ -37,7 +37,7 @@ for idx = x
     [~, ~, avg_rms_all(idx), ~] =  ICP(data_source.source, data_target.target, 20);
 end
 
-figure(3);
+figure(2);
 xlabel('number of times');
 ylabel('MSE');
 title('Stability for 1000 points from different point selection technique');
@@ -68,7 +68,7 @@ end
 
 
 x = 1./x;
-figure(4);
+figure(3);
 xlabel('noise variance');
 ylabel('MSE');
 title('MSE for 1000 points from different point selection technique in difference noise variance');
@@ -77,6 +77,19 @@ hold on;
 plot(x, avg_rms_uniforms, x, avg_rms_random, x, avg_rms_informative, x, avg_rms_all, 'LineWidth', 2);
 legend({'uniform sub-sampling', 'random sub-sampling', 'sampling from informative regions', 'all points'});
 
+%% ICP: different weight
 
+[~, ~, ~, rms_informative] =  ICP(data_source.source, data_target.target, 20, {'informative', 1000} );
+[~, ~, ~, rms_informative_improvement] =  ICP_improvement(data_source.source, data_target.target, 20, {'informative', 1000});
+
+x = 1:1:20;
+figure(4);
+xlabel('iteration');
+ylabel('MSE');
+title('MSE and convergence rate for 1000 points from different weightening of ICP');
+drawnow;
+hold on;
+plot(x, rms_informative, x, rms_informative_improvement, 'LineWidth', 2);
+legend({'constant weight', 'linear with distance'});
 
 
