@@ -14,11 +14,11 @@ x = 1:1:20;
 figure(1);
 xlabel('iteration');
 ylabel('MSE');
-title('MSE and convergence rate for 1000 points from different point selection technique in each iterations');
-drawnow;
-hold on;
+% title('MSE and convergence rate for 1000 points from different point selection technique in each iterations');
+% drawnow;
+% hold on;
 plot(x, rms_uniforms, x, rms_random, x, rms_informative, x, rms_all, 'LineWidth', 2);
-legend({'uniform sub-sampling', 'random sub-sampling', 'sampling from informative regions', 'all points'});
+legend({'uniform sub-sampling', 'random sub-sampling', 'sampling from informative regions', 'all points'},'FontSize',14);
 
 
 
@@ -40,11 +40,11 @@ end
 figure(2);
 xlabel('number of times');
 ylabel('MSE');
-title('Stability for 1000 points from different point selection technique');
-drawnow;
-hold on;
+% title('Stability for 1000 points from different point selection technique');
+% drawnow;
+% hold on;
 plot(x, avg_rms_uniforms, x, avg_rms_random, x, avg_rms_informative, x, avg_rms_all, 'LineWidth', 2);
-legend({'uniform sub-sampling', 'random sub-sampling', 'sampling from informative regions', 'all points'});
+legend({'uniform sub-sampling', 'random sub-sampling', 'sampling from informative regions', 'all points'},'FontSize',14);
 
 
 %%  generate graph for tolerance to noise
@@ -71,11 +71,11 @@ x = 1./x;
 figure(3);
 xlabel('noise variance');
 ylabel('MSE');
-title('MSE for 1000 points from different point selection technique in difference noise variance');
-drawnow;
-hold on;
+% title('MSE for 1000 points from different point selection technique in difference noise variance');
+% drawnow;
+% hold on;
 plot(x, avg_rms_uniforms, x, avg_rms_random, x, avg_rms_informative, x, avg_rms_all, 'LineWidth', 2);
-legend({'uniform sub-sampling', 'random sub-sampling', 'sampling from informative regions', 'all points'});
+legend({'uniform sub-sampling', 'random sub-sampling', 'sampling from informative regions', 'all points'},'FontSize',14);
 
 %% ICP: different weight
 
@@ -86,10 +86,10 @@ x = 1:1:20;
 figure(4);
 xlabel('iteration');
 ylabel('MSE');
-title('MSE and convergence rate for 1000 points from different weightening of ICP');
-drawnow;
-hold on;
+% title('MSE and convergence rate for 1000 points from different weightening of ICP');
+% drawnow;
+% hold on;
 plot(x, rms_informative, x, rms_informative_improvement, 'LineWidth', 2);
-legend({'constant weight', 'linear with distance'});
+legend({'constant weight', 'linear with distance'},'FontSize',14);
 
 
