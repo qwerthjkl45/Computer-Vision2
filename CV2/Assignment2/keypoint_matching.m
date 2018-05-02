@@ -1,4 +1,4 @@
-function [t_matrix, x, points_pair1, points_pair2]= keypoint_matching( orig_img1, orig_img2, stitch)
+function [t_matrix, x, fa, fb]= keypoint_matching( orig_img1, orig_img2, stitch)
 
      img1 = single(orig_img1);
      img2 = single(orig_img2);
@@ -26,6 +26,7 @@ function [t_matrix, x, points_pair1, points_pair2]= keypoint_matching( orig_img1
         hold on;
         h1 = vl_plotframe(fa(:,f1)) ; 
         h2 = vl_plotframe(fb1(:,f2)) ; 
+        
         for idx = 1: size(f1,2)
             line([fa(1,f1(1, idx)) fb1(1,f2(1, idx))], [fa(2,f1(1, idx)) fb1(2,f2(1, idx))], 'Color','red');
         end
@@ -37,10 +38,8 @@ function [t_matrix, x, points_pair1, points_pair2]= keypoint_matching( orig_img1
     t_matrix = [x(1), x(2), 0; x(3), x(4), 0; x(5), x(6), 1];
     
     % if it is homogeneous
-    points_pair1 = fa(1:2, f1);
-    points_pair2 = fb(1:2, f2); 
-        
-    
+    fa = fa(1:2, f1);
+    fb = fb(1:2, f2);    
     
 end
 
