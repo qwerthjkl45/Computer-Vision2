@@ -2,7 +2,7 @@ function[F, inliers1, inliers2] = normalized_eight_point_with_RANSAC(points_pair
 
     total_points = size(points_pair1, 2);
     iteration = 100;
-    threshold = 1;
+    threshold = 0.5;
     max_num_inliers = 0;
     F = 0;
     inliers1 = [];
@@ -37,9 +37,8 @@ function[F, inliers1, inliers2] = normalized_eight_point_with_RANSAC(points_pair
             max_num_inliers = num_inliers;
             inliers1 = inliers1_tmp;
             inliers2 = inliers2_tmp;
-            size(inliers1_tmp)
-            disp(num_inliers);
-            disp('--------');
+            %disp(num_inliers);
+            %disp('--------');
         end
         
     end

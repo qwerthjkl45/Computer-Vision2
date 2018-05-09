@@ -33,3 +33,6 @@ epipolar_plane = F' * inliers2;
 epipolar_lines(epipolar_plane, inliers1, img1);
 epipolar_plane2 = F * inliers1; 
 epipolar_lines(epipolar_plane2, inliers2, img2);
+
+%% part 2: chaining
+chaining;
