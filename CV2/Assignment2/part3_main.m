@@ -35,4 +35,7 @@ epipolar_plane2 = F * inliers1;
 epipolar_lines(epipolar_plane2, inliers2, img2);
 
 %% part 2: chaining
-chaining;
+[pvm, pvm_logic] = chaining;
+
+%% 
+sfm(pvm, pvm_logic, 3);
