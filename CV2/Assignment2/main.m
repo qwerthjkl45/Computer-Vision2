@@ -38,7 +38,9 @@ epipolar_lines(epipolar_plane2, inliers2, img2);
 
 %% part 2: chaining
 [pvm, pvm_logic] = chaining;
-%[pvm_1, pvm_logic] = readPVM;
+[pvm_ideal, pvm_logic_ideal] = readPVM;
 
 %% 
-sfm(pvm, pvm_logic, 3);
+merged_points = sfm(pvm_ideal, pvm_logic_ideal, 3);
+merged_points = sfm(pvm, pvm_logic, 3);
+
