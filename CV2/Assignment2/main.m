@@ -2,7 +2,7 @@
 
 
 data1 = './Data/House/House/frame00000001.png';
-data2 = './Data/House/House/frame00000040.png';
+data2 = './Data/House/House/frame00000002.png';
 %data3 = './Data/House/House/boat1.pgm';
 
 
@@ -19,6 +19,8 @@ p1s = [p1; ones(1, size(p1, 2))];
 p2s = [p2; ones(1, size(p2, 2))];
 epipolar_plane = f' * p2s;
 epipolar_lines(epipolar_plane, p1s, img1);
+epipolar_plane2 = f * p1s; 
+epipolar_lines(epipolar_plane2, p2s, img2);
 
 %% eight ponts with normalization
 f = eight_point(p1, p2);
@@ -36,6 +38,7 @@ epipolar_lines(epipolar_plane2, inliers2, img2);
 
 %% part 2: chaining
 [pvm, pvm_logic] = chaining;
+%[pvm_1, pvm_logic] = readPVM;
 
 %% 
 sfm(pvm, pvm_logic, 3);
