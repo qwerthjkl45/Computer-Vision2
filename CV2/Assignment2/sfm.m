@@ -42,21 +42,19 @@ function M = sfm(pvm_with_points_coordinate, pvm_logic, size_image_set, another_
         else
             figure();
             scatter3(S(1, :), S(2, :), S(3, :));
-            title({'3D point cloud obtained from', '1 single dense block from', pvm_source});
         end        
         
         C_val = [C_val, ones(1, size(S, 2)) * idx] ;
         merged_points = [merged_points, S];
-        disp('-----')
         
     end
     figure();
-    title({'3D point cloud obtained from mutiple dense blocks from', pvm_source});
     fscatter3(merged_points(1, :), merged_points(2, :), merged_points(3, :), C_val);
     
 end
 
 function newS = calcuate(M, S)
+    % eliminate affine ambiguity
     total_frame = size(M , 1)/2;
     
     % Recover C from L by Cholesky decomposition

@@ -3,6 +3,7 @@ function [pvm, pvm_logic]= readPVM
     pvm = readtable(fullFileName);
     
     % convert to matrix
+    figure();
     pvm = pvm{:, :};
     pvm_logic = pvm(1:2:202, :)>0;
     cmap = [1 1 1 

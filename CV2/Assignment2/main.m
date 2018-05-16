@@ -37,18 +37,24 @@ epipolar_plane2 = F * inliers1;
 epipolar_lines(epipolar_plane2, inliers2, img2);
 
 %% part 2: chaining
-[pvm, pvm_logic] = chaining;
+[pvm, pvm_logic] = dense_chaining(1);
 [pvm_ideal, pvm_logic_ideal] = readPVM;
 
 %% part 3: structure from motion
 merged_points = sfm(pvm_ideal, pvm_logic_ideal, 3, false, 'pvm.txt');
 merged_points = sfm(pvm, pvm_logic, 3, false, 'house dataset');
+%%
+% try different set size: 4
+sfm(pvm_ideal, pvm_logic_ideal, 4, false, 'pvm.txt');
+sfm(pvm, pvm_logic, 4, false, 'house dataset');
 
-%% try another decomposition
+% try another decomposition
 sfm(pvm_ideal, pvm_logic_ideal, 3, true, 'pvm.txt');
 sfm(pvm, pvm_logic, 3, true, 'house dataset');
 
-%% additional improvement
 
+%% part 4: additional improvement
+[dpvm, dpvm_logic] = dense_chaining(5);
+sfm(dpvm, dpvm_logic, 3, true, 'house dataset');
 
 
