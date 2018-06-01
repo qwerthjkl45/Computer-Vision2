@@ -135,21 +135,21 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointCloudsWithTexture(Frame
 	//Okay, so it is mega confusing what they want you to do..., they want a PolygonMesh as input in
 	//the pseudo-code, but it isn't inputted in this function.., so I create it using the function
 	//mergingPointClouds(..) followed by the code in the bottom (before displaying)
-	
-	texturedCloud = mergingPointClouds(frames);
-
-	pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr reduced_point_cloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>());
-	pcl::PassThrough<pcl::PointXYZRGBNormal> filter;
-
-	filter.setInputCloud(texturedCloud);
-	filter.filter(*reduced_point_cloud);
-	
+	//
+	//texturedCloud = mergingPointClouds(frames);
+	//
+	//pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr reduced_point_cloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>());
+	//pcl::PassThrough<pcl::PointXYZRGBNormal> filter;
+	//
+	//filter.setInputCloud(texturedCloud);
+	//filter.filter(*reduced_point_cloud);
+	//
 	// Create a mesh from the textured cloud using a reconstruction method,
 	// Poisson Surface is currently hard-coded
-	mesh = createMesh(reduced_point_cloud, 0);
+	//mesh = createMesh(reduced_point_cloud, 0);
 	
-	std::vector<pcl::Vertices> polygons = mesh.polygons;
-	pcl::sensor_msgs::PointCloud2 point_cloud = mesh.cloud;
+	//std::vector<pcl::Vertices> polygons = mesh.polygons;
+	//pcl::sensor_msgs::PointCloud2 point_cloud = mesh.cloud;
 	/* End untested attempt: part 1 */
 	
     for (int i = 0; i < 8; i++) {
@@ -163,17 +163,17 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointCloudsWithTexture(Frame
         // TODO(Student): The same as mergingPointClouds but now with texturing. ~ 50 lines.
         
 		/* Start untested attempt: part 2 */
-		transformed_point_cloud = transformPointCloud(point_cloud, camera_pose.inverse());
+		//transformed_point_cloud = transformPointCloud(point_cloud, camera_pose.inverse());
 		
-		for(int j = 0; j < polgons.size(); j++) {
-			pcl::Vertices polygon = polygons[j];
+		//for(int j = 0; j < polgons.size(); j++) {
+		//	pcl::Vertices polygon = polygons[j];
 			
 			/*Not sure how to do this if-statement... 
 			if(polygon.isVisible(toCameraPose))
 				uv_coordinates = getUVCoordinates(polygon, transformed_point_cloud);
 				//Assign the UV coordinates of this camera to the polygon
 			*/
-		}
+		//}
 		/* End untested attempt: part 2 */
     }
 
