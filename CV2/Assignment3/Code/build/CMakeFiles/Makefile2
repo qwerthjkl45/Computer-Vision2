@@ -54,10 +54,10 @@ RM = /usr/local/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = "/home/qwerthjkl45/CV/CV2/Assignment3-v1.0.0/Assignment 3/Code"
+CMAKE_SOURCE_DIR = /home/qwerthjkl45/AI/CV2/Assignment3/Code
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = "/home/qwerthjkl45/CV/CV2/Assignment3-v1.0.0/Assignment 3/Code/build"
+CMAKE_BINARY_DIR = /home/qwerthjkl45/AI/CV2/Assignment3/Code/build
 
 #=============================================================================
 # Target rules for target CMakeFiles/final.dir
@@ -66,7 +66,7 @@ CMAKE_BINARY_DIR = "/home/qwerthjkl45/CV/CV2/Assignment3-v1.0.0/Assignment 3/Cod
 CMakeFiles/final.dir/all:
 	$(MAKE) -f CMakeFiles/final.dir/build.make CMakeFiles/final.dir/depend
 	$(MAKE) -f CMakeFiles/final.dir/build.make CMakeFiles/final.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir="/home/qwerthjkl45/CV/CV2/Assignment3-v1.0.0/Assignment 3/Code/build/CMakeFiles" --progress-num=1,2,3,4 "Built target final"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/qwerthjkl45/AI/CV2/Assignment3/Code/build/CMakeFiles --progress-num=1,2,3,4 "Built target final"
 .PHONY : CMakeFiles/final.dir/all
 
 # Include target in all.
@@ -76,9 +76,9 @@ all: CMakeFiles/final.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/final.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/home/qwerthjkl45/CV/CV2/Assignment3-v1.0.0/Assignment 3/Code/build/CMakeFiles" 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/qwerthjkl45/AI/CV2/Assignment3/Code/build/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/final.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start "/home/qwerthjkl45/CV/CV2/Assignment3-v1.0.0/Assignment 3/Code/build/CMakeFiles" 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/qwerthjkl45/AI/CV2/Assignment3/Code/build/CMakeFiles 0
 .PHONY : CMakeFiles/final.dir/rule
 
 # Convenience name for target.
