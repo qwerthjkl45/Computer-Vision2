@@ -192,7 +192,10 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointCloudsWithTexture(Frame
         transformed_point_cloud = transformPointCloud(point_cloud, cameraPose.inverse());
         cv::Mat visiblePoints = recordCoordinate(*transformed_point_cloud, frame);
         
-        //set camera parameter
+        pcl::PointCloud<pcl::PointXYZ>::Ptr occlude_point_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+        pcl::copyPointCloud(*transformed_point_cloud, *occlude_point_cloud); 
+        
+        //set camera parameter to use odtree
         pcl::texture_mapping::Camera cam;
         cam.focal_length = focalLength;
         cam.center_w = cx;
@@ -203,24 +206,27 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointCloudsWithTexture(Frame
         for (auto polygon = polygons.begin(); polygon != polygons.end(); ++polygon){
         
             const pcl::PointXYZRGB& point = transformed_point_cloud->at(polygon->vertices[0]);
+                        
+            Eigen::Vector2f uv_coordinate(0.0, 0.0);
+            const pcl::PointXYZ& pt = occlude_point_cloud->at(polygon->vertices[0]);
+            pcl::TextureMapping<pcl::PointXYZ> t;
+            bool visible_to_camera = t.getPointUVCoordinates(pt, cam, uv_coordinate);
+            if (!visible_to_camera) {
+                continue;
+            }         
+               
             int u = std::round(focalLength * (point.x / point.z) + cx);
             int v = std::round(focalLength * (point.y / point.z) + cy);
             
             //check if the point is visible to the camera now            
             float u_normalize = static_cast<float> ((focalLength * (point.x / point.z) + cx) / sizeX); //horizontal
             float v_normalize = static_cast<float> ((focalLength * (point.y / point.z) + cy) / sizeY); //horizontal
-            
-            if (u_normalize < 0 || u_normalize >= 1 || v_normalize < 0 || v_normalize >= 1)
-                continue;
-            
-            
-            float thread = 0.0000001;
+                        
+            float thread = 0.00001;
             cv::Vec3f visiblePoint = visiblePoints.at<cv::Vec3f>(v, u);
-            if (std::abs(visiblePoint[0] - point.x) > thread\
-                || std::abs(visiblePoint[1] - point.y) > thread\
-                || std::abs(visiblePoint[2] - point.z) > thread)
-                continue;
-                       
+            if (std::abs(visiblePoint[0] - point.x) > thread || std::abs(visiblePoint[1] - point.y) > thread || std::abs(visiblePoint[2] - point.z) > thread)
+                continue;             
+                
             
             int x = std::floor(frame.rgb_image_.cols * u_normalize);
             int y = std::floor(frame.rgb_image_.rows * v_normalize);
@@ -238,6 +244,37 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointCloudsWithTexture(Frame
         }
         
     }
+    
+    //filling the gap        
+    //use kd search tree
+    pcl::KdTreeFLANN<pcl::PointXYZRGB>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZRGB>); 
+    tree->setInputCloud(point_cloud); 
+    
+    for (pcl::PointXYZRGB& pt : *point_cloud) {
+        
+        // check if the point is colorless
+        if (pt.r != 0 || pt.g != 0 || pt.b != 0)
+            continue;
+        
+        //find the nearest point with color through KD TREE
+        std::vector<int> nn_indices; 
+        std::vector<float> nn_dists; 
+        tree->nearestKSearch(pt, 10, nn_indices, nn_dists); 
+        
+        // pick 10 nearest points
+        for (int idx=0; idx < 10; idx ++) {
+            const pcl::PointXYZRGB& colorful_point = point_cloud->at(nn_indices[idx]); 
+            if (colorful_point.r != 0 || colorful_point.g != 0 || colorful_point.b != 0 || idx == 9) {
+                pt.r = colorful_point.r;
+                pt.g = colorful_point.g;
+                pt.b = colorful_point.b;
+                break;
+            }
+            
+        }
+    }
+    
+
     pcl::copyPointCloud(*point_cloud, *modelCloud);
     return modelCloud;
 }
@@ -246,37 +283,37 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointCloudsWithTexture(Frame
 enum CreateMeshMethod { PoissonSurfaceReconstruction = 0, MarchingCubes = 1};
 
 // Create mesh from point cloud using one of above methods
-pcl::PolygonMesh createMesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr pointCloud, CreateMeshMethod method) {
+pcl::PolygonMesh createMesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr pointCloud, CreateMeshMethod method, int depth) {
     std::cout << "Creating meshes" << std::endl;
-    int test = static_cast<int>(method);
-    std::cout<<method<<std::endl;
     
     // The variable for the constructed mesh
     pcl::PolygonMesh triangles;    
     switch (method) {
-        case MarchingCubes:
+        case PoissonSurfaceReconstruction:
+            // TODO(Student): Call Poisson Surface Reconstruction. ~ 5 lines.
+            std::cout<<"poisson"<<std::endl;
+            pcl::Poisson<pcl::PointXYZRGBNormal> poisson;
+            poisson.setDepth(depth);
+            poisson.setInputCloud(pointCloud);
+            poisson.reconstruct(triangles);   
+            break;
+         case MarchingCubes:
             std::cout<<"MarchingCubes"<<std::endl;
             
-			pcl::search::KdTree<pcl::PointXYZRGBNormal>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGBNormal>);
+            pcl::search::KdTree<pcl::PointXYZRGBNormal>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGBNormal>);
             tree->setInputCloud(pointCloud);
 
             // create the polygonmesh variable
             pcl::MarchingCubesHoppe<pcl::PointXYZRGBNormal> MarchCubes;
-
+            
             // get result
+            MarchCubes.setGridResolution(75, 75, 75);
             MarchCubes.setInputCloud(pointCloud);
             MarchCubes.setSearchMethod(tree);
             MarchCubes.reconstruct(triangles);
             
             break;
-        case PoissonSurfaceReconstruction:
-            // TODO(Student): Call Poisson Surface Reconstruction. ~ 5 lines.
-            std::cout<<"poisson"<<std::endl;
-            pcl::Poisson<pcl::PointXYZRGBNormal> poisson;
-            poisson.setDepth(10);
-            poisson.setInputCloud(pointCloud);
-            poisson.reconstruct(triangles);   
-            break;
+        
         
     }
     return triangles;
@@ -284,7 +321,7 @@ pcl::PolygonMesh createMesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr pointCl
 
 
 int main(int argc, char *argv[]) {
-    if (argc != 4) {
+    if (argc != 5 && argc != 4) {
         std::cout << "./final [3DFRAMES PATH] [RECONSTRUCTION MODE] [TEXTURE_MODE]" << std::endl;
 
         return 0;
@@ -299,36 +336,35 @@ int main(int argc, char *argv[]) {
     }
 
     pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr texturedCloud;
+    pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud;
     pcl::PolygonMesh triangles;
 
+    int depth = 10;
+    
     if (argv[3][0] == 't') {
         // SECTION 4: Coloring 3D Model
         // Create one point cloud by merging all frames with texture using
         // the rgb images from the frames
         texturedCloud = mergingPointClouds(frames);
-        //texturedCloud = mergingPointCloudsWithTexture(frames);
 
         // Create a mesh from the textured cloud using a reconstruction method,
         // Poisson Surface or Marching Cubes
-        triangles = createMesh(texturedCloud, reconMode);
+        if (argc == 5) 
+            depth =  static_cast<CreateMeshMethod>(std::stoi(argv[4]));
+        triangles = createMesh(texturedCloud, reconMode, depth);
         texturedCloud = mergingPointCloudsWithTexture(frames, triangles);
-        triangles = createMesh(texturedCloud, reconMode);
+        pcl::toPCLPointCloud2(*texturedCloud, triangles.cloud);        
     } else {
         // SECTION 3: 3D Meshing & Watertighting
 
         // Create one point cloud by merging all frames with texture using
         // the rgb images from the frames
         texturedCloud = mergingPointClouds(frames);
-
+        triangles = createMesh(texturedCloud, reconMode, 0);
         
-        // Create a mesh from the textured cloud using a reconstruction method,
-        // Poisson Surface or Marching Cubes
-        triangles = createMesh(texturedCloud, reconMode);
-        std::cout<<"create triangles"<<std::endl;
     }
 
     // Sample code for visualization.
-
     // Show viewer
     std::cout << "Finished texturing" << std::endl;
     boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
@@ -337,31 +373,16 @@ int main(int argc, char *argv[]) {
     pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGBNormal> rgb(texturedCloud);
     viewer->addPointCloud<pcl::PointXYZRGBNormal>(texturedCloud, rgb, "cloud");
 
-    // Add mesh
-    
+    // Add mesh    
     viewer->setBackgroundColor(1, 1, 1);
     viewer->addPolygonMesh(triangles, "meshes", 0);
     viewer->addCoordinateSystem(1.0);
     viewer->initCameraParameters();
-    viewer->setCameraPosition(1,1,-2,0,0,0,0); 
-    
-    std::vector<pcl::visualization::Camera> cam; 
-
-    //Save the position of the camera           
-    
-    
 
     // Keep viewer open
     while (!viewer->wasStopped()) {
         viewer->spinOnce(100);
         boost::this_thread::sleep(boost::posix_time::microseconds(100000));
-        viewer->getCameras(cam); 
-
-    //Print recorded points on the screen: 
-    /*cout << "Cam: " << endl 
-                 << " - pos: (" << cam[0].pos[0] << ", "    << cam[0].pos[1] << ", "    << cam[0].pos[2] << ")" << endl 
-                 << " - view: ("    << cam[0].view[0] << ", "   << cam[0].view[1] << ", "   << cam[0].view[2] << ")"    << endl 
-                 << " - focal: ("   << cam[0].focal[0] << ", "  << cam[0].focal[1] << ", "  << cam[0].focal[2] << ")"   << endl;*/
     
     }
 
